@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "test-mcp-video-server": {
+      "type": "stdio",
+      "command": "npm",
+      "args": ["run", "server:dev"]
+    }
+  },
+  "inputs": []
+}
