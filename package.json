@@ -1,5 +1,6 @@
 {
   "name": "mcp-server-and-client-web-dev-simplified",
+  "type": "module",
   "version": "1.0.0",
   "main": "src/server.ts",
   "scripts": {
@@ -20,10 +21,11 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.13.0",
     "@ai-sdk/google": "^1.2.19",
     "@inquirer/prompts": "^7.5.3",
+    "@modelcontextprotocol/sdk": "^1.13.0",
     "ai": "^4.3.16",
+    "chalk": "^5.4.1",
     "dotenv": "^16.5.0",
     "zod": "^3.25.67"
   }

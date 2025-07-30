@@ -19,5 +19,51 @@
     "email": "charlie@test.com",
     "address": "123 Main St, Omaha, NE",
     "phone": "555-8765"
+  },
+  {
+    "id": 4,
+    "name": "kyle",
+    "email": "kyle@test.mail",
+    "address": "123",
+    "phone": "789"
+  },
+  {
+    "id": 5,
+    "firstName": "Eleanor",
+    "lastName": "Vance",
+    "email": "eleanor.vance78@example.com",
+    "address": {
+      "street": "481 Oakwood Drive",
+      "city": "New Haven",
+      "state": "CT",
+      "zipCode": "06511"
+    },
+    "phoneNumber": "203-555-0128"
+  },
+  {
+    "id": 6,
+    "firstName": "Eleanor",
+    "lastName": "Vance",
+    "email": "eleanor.vance78@example.com",
+    "address": {
+      "street": "481 Oakwood Drive",
+      "city": "New Haven",
+      "state": "CT",
+      "zipCode": "06511"
+    },
+    "phoneNumber": "203-555-0128"
+  },
+  {
+    "id": 7,
+    "firstName": "Eleanor",
+    "lastName": "Vance",
+    "email": "eleanor.vance78@example.com",
+    "address": {
+      "street": "481 Oak Street",
+      "city": "New Haven",
+      "state": "CT",
+      "zipCode": "06511"
+    },
+    "phoneNumber": "203-555-9284"
   }
 ]

@@ -10,6 +10,7 @@ import {
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import { generateText, jsonSchema, ToolSet } from "ai";
+import { logType } from "./utils.js";
 
 const mcp = new Client(
   {
@@ -42,6 +43,7 @@ async function main() {
   mcp.setRequestHandler(CreateMessageRequestSchema, async (request) => {
     const texts: string[] = [];
     console.log(
+      logType.info,
       "mcp.setRequestHandler(CreateMessageRequestSchema // \n request.params.messages >>>",
       request.params.messages
     );
@@ -51,6 +53,7 @@ async function main() {
     }
 
     console.log(
+      logType.info,
       "setRequestHandler(CreateMessageRequestSchema texts[] >>>",
       texts
     );
@@ -66,7 +69,7 @@ async function main() {
     };
   });
 
-  console.log("You are connected!");
+  console.log(logType.output, "You are connected!");
 
   while (true) {
     const option = await select({
@@ -84,10 +87,10 @@ async function main() {
             description: tool.description,
           })),
         });
-        console.log("toolName >>>", toolName);
+        console.log(logType.info, "toolName >>>", toolName);
         const tool = tools.find((t) => t.name === toolName);
         if (tool === null) {
-          console.error("Tool not found");
+          console.error(logType.error, "Tool not found");
         } else {
           await handleTool(tool!);
         }
@@ -108,14 +111,14 @@ async function main() {
           ],
         });
 
-        console.log("resourceUri >>>", resourceUri);
+        console.log(logType.info, "resourceUri >>>", resourceUri);
 
         const uri =
           resources.find((r) => r.uri === resourceUri)?.uri ??
           resourceTemplates.find((r) => r.uriTemplate === resourceUri)
             ?.uriTemplate;
         if (uri === null) {
-          console.error("Resource not found");
+          console.error(logType.error, "Resource not found");
         } else {
           await handleResource(uri!);
         }
@@ -129,12 +132,12 @@ async function main() {
           })),
         });
 
-        console.log("promptName >>>", promptName);
+        console.log(logType.info, "promptName >>>", promptName);
 
         const prompt = prompts.find((p) => p.name === promptName);
 
         if (prompt === null) {
-          console.error("Prompt not found");
+          console.error(logType.error, "Prompt not found");
         } else {
           await handlePrompt(prompt!);
         }
@@ -151,7 +154,7 @@ async function handleQuery(tools: Tool[]) {
     model: google("gemini-2.0-flash"),
     prompt: query,
     tools: tools.reduce((obj, tool) => {
-      console.log("tool >>>", tool);
+      console.log(logType.info, "tool >>>", tool);
 
       return {
         ...obj,
@@ -159,8 +162,8 @@ async function handleQuery(tools: Tool[]) {
           description: tool.description,
           parameters: jsonSchema(tool.inputSchema),
           execute: async (args: Record<string, any>) => {
-            console.log("prompt: query >>>", query);
-            console.log("execute args >>>", args);
+            console.log(logType.info, "prompt: query >>>", query);
+            console.log(logType.info, "execute args >>>", args);
             return await mcp.callTool({
               name: tool.name,
               arguments: args,
@@ -171,9 +174,10 @@ async function handleQuery(tools: Tool[]) {
     }, {} as ToolSet),
   });
 
-  console.log("text >>>", text || "No text generate");
+  console.log(logType.output, "text >>>", text || "No text generate");
 
   console.log(
+    logType.output,
     "toolResults[0]?.result?.content[0]?.text >>>",
     // @ts-expect-error
     toolResults[0]?.result?.content[0]?.text || "No text generate"
@@ -184,6 +188,7 @@ async function handleTool(tool: Tool) {
   const args: Record<string, string> = {};
 
   console.log(
+    logType.info,
     "handleTool -> tool.inputSchema.properties >>>",
     tool.inputSchema.properties
   );
@@ -196,23 +201,27 @@ async function handleTool(tool: Tool) {
     });
   }
 
-  console.log("handleTool args >>>", args);
+  console.log(logType.info, "handleTool args >>>", args);
 
   const res = await mcp.callTool({
     name: tool.name,
     arguments: args,
   });
 
-  console.log("res.content >>>", (res.content as [{ text: string }])[0].text);
+  console.log(
+    logType.output,
+    "res.content >>>",
+    (res.content as [{ text: string }])[0].text
+  );
 }
 
 async function handleResource(uri: string) {
   let finalUri = uri;
-  console.log("uri >>>", uri);
+  console.log(logType.info, "uri >>>", uri);
 
   const paramMatches = uri.match(/{([^}]+)}/g);
 
-  console.log("paramMatches >>>", paramMatches);
+  console.log(logType.info, "paramMatches >>>", paramMatches);
 
   if (paramMatches !== null) {
     for (const paramMatch of paramMatches) {
@@ -221,7 +230,7 @@ async function handleResource(uri: string) {
       const paramValue = await input({
         message: `Enter value for ${paramName}`,
       });
-      console.log("paramValue >>>", paramValue);
+      console.log(logType.info, "paramValue >>>", paramValue);
       finalUri = finalUri.replace(paramMatch, paramValue);
     }
   }
@@ -231,6 +240,7 @@ async function handleResource(uri: string) {
   });
 
   console.log(
+    logType.output,
     "res.contents[0].text >>>",
     JSON.stringify(JSON.parse(res.contents[0].text as string), null, 2)
   );
@@ -250,11 +260,12 @@ async function handlePrompt(prompt: Prompt) {
     arguments: args,
   });
 
-  console.log("response.messages >>>", response.messages);
+  console.log(logType.info, "response.messages >>>", response.messages);
 
   for (const message of response.messages) {
     {
       console.log(
+        logType.output,
         "handleServerMessagePrompt >>>",
         await handleServerMessagePrompt(message)
       );
@@ -265,7 +276,7 @@ async function handlePrompt(prompt: Prompt) {
 async function handleServerMessagePrompt(message: PromptMessage) {
   if (message.content.type !== "text") return;
 
-  console.log("message.content.text >>>", message.content.text);
+  console.log(logType.output, "message.content.text >>>", message.content.text);
 
   const run = await confirm({
     message: "Would you like to run the above prompt",
@@ -279,7 +290,7 @@ async function handleServerMessagePrompt(message: PromptMessage) {
     prompt: message.content.text,
   });
 
-  console.log("generateText >>>", text);
+  console.log(logType.output, "generateText >>>", text);
 
   return text;
 }

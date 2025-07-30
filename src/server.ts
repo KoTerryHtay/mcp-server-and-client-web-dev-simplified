@@ -6,6 +6,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { CreateMessageResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import fs from "node:fs/promises";
 import z from "zod";
+import { logType } from "./utils.js";
 
 const server = new McpServer({
   name: "test",
@@ -17,6 +18,7 @@ const server = new McpServer({
   },
 });
 
+// create-user
 server.tool(
   "create-user",
   "Create a new user in the database",
@@ -48,6 +50,7 @@ server.tool(
   }
 );
 
+// users://all
 server.resource(
   "users",
   "users://all",
@@ -73,6 +76,7 @@ server.resource(
   }
 );
 
+// users://{userId}/profile
 server.resource(
   "user-details",
   new ResourceTemplate("users://{userId}/profile", { list: undefined }),
@@ -112,6 +116,7 @@ server.resource(
   }
 );
 
+// create-random-user
 server.tool(
   "create-random-user",
   "Create a random user with fake data",
@@ -142,7 +147,7 @@ server.tool(
       CreateMessageResultSchema
     );
 
-    console.log("res >>>", JSON.stringify(res, null, 2));
+    console.log(logType.output, "res >>>", JSON.stringify(res, null, 2));
 
     if (res.content.type !== "text") {
       return {
@@ -171,6 +176,7 @@ server.tool(
   }
 );
 
+// generate-fake-user
 server.prompt(
   "generate-fake-user",
   "Generate a fake user based on a given name",
